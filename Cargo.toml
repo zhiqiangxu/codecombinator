@@ -1,0 +1,16 @@
+[package]
+name = "codecombinator"
+version = "0.1.0"
+authors = ["徐志强 <652732310@qq.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+thiserror = "1.0"
+tide = "0.13.0"
+async-std = { version = "1.5.0", features = ["attributes"] }
+arbitrary = "0.4.5"
+async-trait = "0.1.38"
+waitgroup = "0.1.1"

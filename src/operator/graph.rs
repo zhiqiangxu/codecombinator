@@ -40,9 +40,25 @@ impl Graph {
         }
 
         let ptr = self.operators.as_mut_ptr();
-        unsafe {
-            let in_pin = (*ptr.add(b)).get_in(j)?;
-            (*ptr.add(a)).add_out(i, in_pin)
+        if a == b {
+            unsafe {
+                let ref mut a = *ptr.add(a);
+                if a.get_out_type(i)? != a.get_in_type(j)? {
+                    return Err(into_anyerr!(GraphError::PinTypeNotMatch))?;
+                }
+                let in_pin = a.get_in(j)?;
+                a.add_out(i, in_pin)
+            }
+        } else {
+            unsafe {
+                let ref mut a = *ptr.add(a);
+                let ref b = *ptr.add(b);
+                if a.get_out_type(i)? != b.get_in_type(j)? {
+                    return Err(into_anyerr!(GraphError::PinTypeNotMatch))?;
+                }
+                let in_pin = b.get_in(j)?;
+                a.add_out(i, in_pin)
+            }
         }
     }
 }

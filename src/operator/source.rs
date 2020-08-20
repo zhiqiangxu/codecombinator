@@ -38,13 +38,10 @@ where
 
             let last_idx = self.out_sender.len() - 1;
 
-            println!("out_sender size: {}", self.out_sender.len());
-
             for (pos, s) in self.out_sender.iter().enumerate() {
                 if pos == last_idx {
                     break;
                 }
-                println!("send value: {:?}", v);
                 s.send(v.clone()).await;
             }
             unsafe {

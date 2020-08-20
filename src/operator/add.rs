@@ -55,22 +55,17 @@ where
 {
     async fn process(&mut self) -> Result<(), OperatorError> {
         loop {
-            println!("add process");
             let v1 = self
                 .in_recv1
                 .recv()
                 .await
                 .map_err(|source| into_anyerr!(AddError::Recv1 { source }))?;
 
-            println!("got v1 : {:?}", v1);
-
             let v2 = self
                 .in_recv2
                 .recv()
                 .await
                 .map_err(|source| into_anyerr!(AddError::Recv2 { source }))?;
-
-            println!("got v2 : {:?}", v2);
 
             if self.out_sender.len() == 0 {
                 continue;

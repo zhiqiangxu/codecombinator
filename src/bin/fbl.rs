@@ -4,9 +4,9 @@ use codecombinator::operator::{add, graph, sink, source, Operator};
 fn main() {
     let mut g = graph::Graph::new();
 
-    let add = Box::new(add::Add::<'static, u32>::new());
+    let add = Box::new(add::Add::<'_, u32>::new());
 
-    let source = Box::new(source::Source::<'static, u32>::new());
+    let source = Box::new(source::Source::<'_, u32>::new());
 
     let sink = Box::new(sink::Sink::<u32>::new());
 

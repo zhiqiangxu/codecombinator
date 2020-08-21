@@ -1,5 +1,5 @@
 use super::OperatorError;
-use async_std::sync::{channel, Receiver, RecvError, Sender};
+use async_std::sync::{channel, Arc, Receiver, RecvError, Sender, Weak};
 use async_trait::async_trait;
 use std::any::TypeId;
 use std::marker::Send;
@@ -17,19 +17,19 @@ pub enum AddError {
     Other(#[from] anyhow::Error),
 }
 
-pub struct Add<'a, T>
+pub struct Add<T>
 where
     T: StdAdd + Copy + Send,
     <T as std::ops::Add>::Output: Send + Sync + Clone,
 {
-    in_sender1: Sender<T>,
+    in_sender1: Arc<Sender<T>>,
     in_recv1: Receiver<T>,
-    in_sender2: Sender<T>,
+    in_sender2: Arc<Sender<T>>,
     in_recv2: Receiver<T>,
-    out_sender: Vec<&'a Sender<<T as std::ops::Add>::Output>>,
+    out_sender: Vec<Weak<Sender<<T as std::ops::Add>::Output>>>,
 }
 
-impl<'a, T> Add<'a, T>
+impl<T> Add<T>
 where
     T: StdAdd + Copy + Send,
     <T as std::ops::Add>::Output: Send + Sync + Clone,
@@ -38,9 +38,9 @@ where
         let (in_sender1, in_recv1) = channel::<T>(1);
         let (in_sender2, in_recv2) = channel::<T>(1);
         Add {
-            in_sender1,
+            in_sender1: Arc::new(in_sender1),
             in_recv1,
-            in_sender2,
+            in_sender2: Arc::new(in_sender2),
             in_recv2,
             out_sender: vec![],
         }
@@ -48,7 +48,7 @@ where
 }
 
 #[async_trait]
-impl<'a, T> super::Operator for Add<'a, T>
+impl<T> super::Operator for Add<T>
 where
     T: StdAdd + Copy + Send + std::fmt::Debug + 'static,
     <T as std::ops::Add>::Output: Send + Sync + Clone + std::fmt::Debug + 'static,
@@ -77,14 +77,24 @@ where
 
             let last_idx = self.out_sender.len() - 1;
 
-            for (pos, s) in self.out_sender.iter().enumerate() {
+            for (pos, w) in self.out_sender.iter().enumerate() {
                 if pos == last_idx {
                     break;
                 }
-                s.send(v3.clone()).await;
+                match w.upgrade() {
+                    Some(s) => {
+                        s.send(v3.clone()).await;
+                    }
+                    None => {}
+                }
             }
             unsafe {
-                self.out_sender.get_unchecked(last_idx).send(v3).await;
+                match self.out_sender.get_unchecked(last_idx).upgrade() {
+                    Some(s) => {
+                        s.send(v3).await;
+                    }
+                    None => {}
+                }
             }
         }
     }
@@ -115,14 +125,14 @@ where
 
     fn get_in(&self, i: u8) -> Result<usize, OperatorError> {
         match i {
-            0 => Ok(&self.in_sender1 as *const _ as usize),
-            1 => Ok(&self.in_sender2 as *const _ as usize),
+            0 => Ok(Arc::downgrade(&self.in_sender1).into_raw() as _),
+            1 => Ok(Arc::downgrade(&self.in_sender2).into_raw() as _),
             _ => Err(OperatorError::PinNotExists)?,
         }
     }
 
     unsafe fn add_out(&mut self, i: u8, sender_ref: usize) -> Result<(), OperatorError> {
-        let sender: &Sender<<T as std::ops::Add>::Output> = std::mem::transmute(sender_ref);
+        let sender = Weak::from_raw(sender_ref as *const _);
         self.out_sender.push(sender);
         Ok(())
     }

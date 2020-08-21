@@ -1,19 +1,19 @@
 use super::OperatorError;
 use arbitrary::{Arbitrary, Unstructured};
-use async_std::sync::{channel, Receiver, RecvError, Sender};
+use async_std::sync::{Sender, Weak};
 use async_trait::async_trait;
 use std::any::TypeId;
 use std::marker::PhantomData;
 
-pub struct Source<'a, T>
+pub struct Source<T>
 where
     T: Arbitrary + Clone,
 {
     phantom: PhantomData<T>,
-    out_sender: Vec<&'a Sender<T>>,
+    out_sender: Vec<Weak<Sender<T>>>,
 }
 
-impl<'a, T> Source<'a, T>
+impl<T> Source<T>
 where
     T: Arbitrary + Clone,
 {
@@ -26,7 +26,7 @@ where
 }
 
 #[async_trait]
-impl<'a, T> super::Operator for Source<'a, T>
+impl<T> super::Operator for Source<T>
 where
     T: Arbitrary + Clone + Send + Sync + std::fmt::Debug,
 {
@@ -38,14 +38,24 @@ where
 
             let last_idx = self.out_sender.len() - 1;
 
-            for (pos, s) in self.out_sender.iter().enumerate() {
+            for (pos, w) in self.out_sender.iter().enumerate() {
                 if pos == last_idx {
                     break;
                 }
-                s.send(v.clone()).await;
+                match w.upgrade() {
+                    Some(s) => {
+                        s.send(v.clone()).await;
+                    }
+                    None => {}
+                }
             }
             unsafe {
-                self.out_sender.get_unchecked(last_idx).send(v).await;
+                match self.out_sender.get_unchecked(last_idx).upgrade() {
+                    Some(s) => {
+                        s.send(v).await;
+                    }
+                    None => {}
+                }
             }
         }
     }
@@ -65,7 +75,7 @@ where
         Err(OperatorError::PinNotExists)
     }
     unsafe fn add_out(&mut self, i: u8, sender_ref: usize) -> Result<(), OperatorError> {
-        let sender: &'a Sender<T> = std::mem::transmute(sender_ref);
+        let sender = Weak::from_raw(sender_ref as *const _);
         self.out_sender.push(sender);
         Ok(())
     }

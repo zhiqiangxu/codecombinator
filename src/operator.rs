@@ -8,6 +8,7 @@ pub mod add;
 pub mod graph;
 pub mod sink;
 pub mod source;
+pub mod sql;
 
 use async_trait::async_trait;
 use std::any::TypeId;

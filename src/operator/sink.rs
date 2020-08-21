@@ -1,11 +1,11 @@
 use super::OperatorError;
-use async_std::sync::{channel, Receiver, RecvError, Sender};
+use async_std::sync::{channel, Arc, Receiver, RecvError, Sender};
 use async_trait::async_trait;
 use std::any::TypeId;
 use thiserror::Error;
 
 pub struct Sink<T> {
-    in_sender: Sender<T>,
+    in_sender: Arc<Sender<T>>,
     in_recv: Receiver<T>,
 }
 
@@ -21,7 +21,10 @@ pub enum SinkError {
 impl<T> Sink<T> {
     pub fn new() -> Self {
         let (in_sender, in_recv) = channel::<T>(1);
-        Sink { in_sender, in_recv }
+        Sink {
+            in_sender: Arc::new(in_sender),
+            in_recv,
+        }
     }
 }
 
@@ -37,6 +40,8 @@ where
                 .recv()
                 .await
                 .map_err(|source| into_anyerr!(SinkError::Recv { source }))?;
+
+            println!("sink ok");
         }
     }
     fn get_in_count(&self) -> u8 {
@@ -57,7 +62,7 @@ where
     }
     fn get_in(&self, i: u8) -> Result<usize, OperatorError> {
         match i {
-            0 => Ok(&self.in_sender as *const _ as usize),
+            0 => Ok(Arc::downgrade(&self.in_sender).into_raw() as usize),
             _ => Err(OperatorError::PinNotExists)?,
         }
     }

@@ -1,17 +1,18 @@
-macro_rules! into_anyerr {
+macro_rules! into_operr {
     ($expression:expr) => {
-        anyhow::Error::from($expression)
+        match $expression {
+            _ => OperatorError::Other(anyhow::Error::from($expression)),
+        }
     };
 }
 
-pub mod add;
-pub mod graph;
-pub mod sink;
-pub mod source;
+pub mod http_api;
+pub mod http_server;
 pub mod sql;
+pub mod sql_runner;
 
+use async_std::sync::Weak;
 use async_trait::async_trait;
-use std::any::TypeId;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -24,12 +25,17 @@ pub enum OperatorError {
 }
 
 #[async_trait]
-pub trait Operator: Send + Sync {
-    async fn process(&mut self) -> Result<(), OperatorError>;
-    fn get_in_count(&self) -> u8;
-    fn get_out_count(&self) -> u8;
-    fn get_in_type(&self, i: u8) -> Result<TypeId, OperatorError>;
-    fn get_out_type(&self, i: u8) -> Result<TypeId, OperatorError>;
-    fn get_in(&self, i: u8) -> Result<usize, OperatorError>;
-    unsafe fn add_out(&mut self, i: u8, sender_ref: usize) -> Result<(), OperatorError>;
+pub trait Source: Operator {
+    async fn start(&mut self) -> Result<(), OperatorError>;
+}
+
+pub trait Operator {}
+
+pub trait Monad<O>
+where
+    O: Operator,
+{
+    type Result;
+
+    fn apply(&mut self, op: Weak<O>) -> Self::Result;
 }

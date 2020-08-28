@@ -11,7 +11,7 @@ pub struct HTTPServer {
 }
 
 pub struct Config {
-    listen_addr: String,
+    pub listen_addr: &'static str,
 }
 
 impl HTTPServer {
@@ -36,17 +36,18 @@ impl super::Source for HTTPServer {
                     let config = a.config();
                     let mut route = app.at(config.uri);
 
-                    let api = w.clone();
-                    let handler = async |req| {
-                        let api = api.clone();
-
-                        match api.upgrade() {
-                            Some(a) => {
-                                let body = a.handle(req).await.unwrap();
-                                Ok(body)
+                    let w = w.clone();
+                    let handler = move |req| {
+                        let w = w.clone();
+                        return async move {
+                            match w.upgrade() {
+                                Some(a) => {
+                                    let body = a.handle(req).await.unwrap();
+                                    Ok(body)
+                                }
+                                None => Ok(Body::from_string("empty".to_string())),
                             }
-                            None => Ok(Body::from_string("empty".to_string())),
-                        }
+                        };
                     };
 
                     match config.method {
@@ -67,7 +68,7 @@ impl super::Source for HTTPServer {
                 None => {}
             }
         }
-        app.listen(self.config.listen_addr.as_str()).await.unwrap();
+        app.listen(self.config.listen_addr).await.unwrap();
         Ok(())
     }
 }

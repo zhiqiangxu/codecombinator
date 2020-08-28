@@ -1,6 +1,8 @@
 use async_std::sync::{Arc, Weak};
 use async_std::task;
-use codecombinator::operator::{http_api, sql, sql_runner as runner, Monad, Operator};
+use codecombinator::operator::{
+    http_api, http_server, sql, sql_runner as runner, Monad, Operator, Source,
+};
 use sqlx::mysql::MySql;
 
 #[async_std::main]
@@ -27,11 +29,19 @@ async fn main() {
 
     api.apply(Arc::downgrade(&sql_runner));
 
-    // let graph_task = task::spawn(async move {
-    //     match g.process().await {
-    //         Ok(_) => {}
-    //         Err(err) => println!("err : {:?}", err),
-    //     };
-    // });
-    // task::block_on(graph_task);
+    let mut server = http_server::HTTPServer::new(http_server::Config {
+        listen_addr: "127.0.0.1:8088",
+    });
+
+    let api = Arc::new(api);
+
+    server.apply(Arc::downgrade(&api));
+
+    let server_task = task::spawn(async move {
+        match server.start().await {
+            Ok(_) => {}
+            Err(err) => println!("err : {:?}", err),
+        };
+    });
+    task::block_on(server_task);
 }

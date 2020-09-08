@@ -100,7 +100,7 @@ impl VisualGraph {
                                 let mut iparent = *edgeto.get_unchecked(from);
                                 loop {
                                     if iparent == -1 {
-                                        panic!("bug happened");
+                                        break;
                                     }
 
                                     let parent = iparent as usize;

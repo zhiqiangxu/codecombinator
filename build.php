@@ -1,6 +1,7 @@
 <?php
 
-$output = shell_exec("cargo run --bin eval");
+$json_file = empty($argv[1]) ? "" : $argv[1];
+$output = shell_exec("cargo run --bin eval " . $json_file);
 
 $date = date('Y-m-d H:i:s');
 

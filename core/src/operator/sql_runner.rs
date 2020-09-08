@@ -10,11 +10,11 @@ use sqlx::Column;
 use sqlx::{Row, TypeInfo};
 
 pub struct SqlRunner {
-    w: wtype,
+    w: WType,
     config: Config,
 }
 
-enum wtype {
+enum WType {
     Mysql(Weak<Sql<MySql>>),
     None,
 }
@@ -29,7 +29,7 @@ impl super::Operator for SqlRunner {}
 impl SqlRunner {
     pub fn new(config: Config) -> Self {
         SqlRunner {
-            w: wtype::None,
+            w: WType::None,
             config,
         }
     }
@@ -110,7 +110,7 @@ impl SqlRunner {
 
     pub async fn run_sql(&self) -> Option<JsonValue> {
         match &self.w {
-            wtype::Mysql(mw) => match mw.upgrade() {
+            WType::Mysql(mw) => match mw.upgrade() {
                 Some(a) => {
                     let mut arr = vec![];
                     let mut con = a.get_executor().await.unwrap();
@@ -145,7 +145,7 @@ impl super::Monad<super::sql::Sql<MySql>> for SqlRunner {
     type Result = ();
 
     fn apply(&mut self, w: Weak<super::sql::Sql<MySql>>) -> Self::Result {
-        self.w = wtype::Mysql(w)
+        self.w = WType::Mysql(w)
     }
 }
 

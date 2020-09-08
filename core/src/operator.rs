@@ -17,9 +17,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum OperatorError {
-    #[error("pin not exists")]
-    PinNotExists,
-
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }

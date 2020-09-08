@@ -85,6 +85,9 @@ impl VisualGraph {
             sorted_applies: &mut Vec<Apply>,
         ) {
             unsafe {
+                if *handled.get_unchecked(i) {
+                    return;
+                }
                 *onstack.get_unchecked_mut(i) = true;
 
                 match vg.applies.get(&i) {
@@ -97,10 +100,10 @@ impl VisualGraph {
                             }
                             if *onstack.get_unchecked_mut(from) {
                                 let mut cycle = vec![];
-                                let mut iparent = *edgeto.get_unchecked(from);
+                                let mut iparent = *edgeto.get_unchecked(i);
                                 loop {
                                     if iparent == -1 {
-                                        break;
+                                        panic!("bug happened");
                                     }
 
                                     let parent = iparent as usize;

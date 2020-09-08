@@ -7,10 +7,10 @@ use tide::{Body, Request};
 
 pub struct HTTPAPI {
     config: Config,
-    w: wtype,
+    w: WType,
 }
 
-enum wtype {
+enum WType {
     SqlRunner(Weak<SqlRunner>),
     None,
 }
@@ -34,7 +34,7 @@ impl HTTPAPI {
     pub fn new(config: Config) -> Self {
         Self {
             config,
-            w: wtype::None,
+            w: WType::None,
         }
     }
 
@@ -44,14 +44,14 @@ impl HTTPAPI {
 
     pub async fn handle(&self, _req: Request<()>) -> Result<Body, OperatorError> {
         match &self.w {
-            wtype::SqlRunner(w) => match w.upgrade() {
+            WType::SqlRunner(w) => match w.upgrade() {
                 Some(a) => {
                     let json = a.run_sql().await.unwrap();
                     return Ok(Body::from_json(&json).unwrap());
                 }
                 _ => {}
             },
-            wtype::None => {}
+            WType::None => {}
         }
 
         Ok(Body::from_string("empty".to_string()))
@@ -64,6 +64,6 @@ impl super::Monad<SqlRunner> for HTTPAPI {
     type Result = ();
 
     fn apply(&mut self, w: Weak<SqlRunner>) -> Self::Result {
-        self.w = wtype::SqlRunner(w);
+        self.w = WType::SqlRunner(w);
     }
 }

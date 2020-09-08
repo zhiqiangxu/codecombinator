@@ -1,0 +1,21 @@
+[package]
+name = "core"
+version = "0.1.0"
+authors = ["徐志强 <652732310@qq.com>"]
+edition = "2018"
+
+[dependencies]
+async-std = {version = "1.5.0", features = ["attributes"]}
+async-trait = {git = "https://github.com/dtolnay/async-trait", rev = "b922a50" }
+sqlx = {git = "https://github.com/launchbadge/sqlx", rev = "1acd782", features = ["mysql", "json"] }
+serde_json = { version = "1.0", features = ["raw_value"] }
+serde = "1.0"
+chrono = "0.4.15"
+futures = "0.3.1"
+tide = {git = "https://github.com/http-rs/tide", rev = "eaad5b6"}
+thiserror = {git="https://github.com/dtolnay/thiserror", rev = "04b91d7"}
+anyhow = {git = "https://github.com/dtolnay/anyhow", rev = "0f3545f"}
+futures-core = { version = "0.3.5", default-features = false }
+
+[dev-dependencies]
+tokio-test = "*"

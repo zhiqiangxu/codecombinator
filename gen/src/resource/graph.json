@@ -2,23 +2,34 @@
     "operators": [
         {
             "kind": "mysql",
-            "config": "{\"dsn\": \"mysql://openkg:some_pass@172.168.3.46:3307/openkg?readTimeout=3s&charset=utf8mb4\"}"
+            "config": {
+                "dsn": "mysql://openkg:some_pass@172.168.3.46:3307/openkg?readTimeout=3s&charset=utf8mb4"
+            }
         },
         {
             "kind": "sql_runner",
-            "config": "{\"sql\": \"select * from user limit 10\"}"
+            "config": {
+                "sql": "select * from user limit 10"
+            }
         },
         {
             "kind": "http_api",
-            "config": "{\"uri\": \"/\", \"method\":\"GET\"}"
+            "config": {
+                "uri": "/",
+                "method": "GET"
+            }
         },
         {
             "kind": "http_server",
-            "config": "{\"listen_addr\": \"127.0.0.1:8088\"}"
+            "config": {
+                "listen_addr": "127.0.0.1:8088"
+            }
         },
         {
             "kind": "http_server",
-            "config": "{\"listen_addr\": \"127.0.0.1:8099\"}"
+            "config": {
+                "listen_addr": "127.0.0.1:8099"
+            }
         }
     ],
     "applies": {

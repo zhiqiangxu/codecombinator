@@ -1,7 +1,7 @@
 
 
 {% for op in operators %}
-let config{{loop.index0}} = serde_json::from_str({{op.config|json_encode}}).unwrap();
+let config{{loop.index0}} = serde_json::from_str({{op.config|json_encode|json_encode}}).unwrap();
 {% if op.meta.new_async %}
 let mut op{{loop.index0}} = Arc::new({{op.meta.file}}::{{op.meta.ty}}::new(config{{loop.index0}}).await);
 {% else %}

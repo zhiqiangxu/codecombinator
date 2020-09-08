@@ -1,20 +1,21 @@
+use serde_json::value::RawValue;
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct VisualNode {
     pub kind: String,
-    pub config: String,
+    pub config: Box<RawValue>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct VisualGraph {
     pub operators: Vec<VisualNode>,
     pub applies: HashMap<usize, Vec<usize>>,
 }
 
 #[derive(Serialize)]
-pub struct Operator {
-    pub config: String,
+pub struct Operator<'a> {
+    pub config: &'a Box<RawValue>,
     pub meta: OperatorMeta,
 }
 
@@ -145,7 +146,7 @@ impl VisualGraph {
                 );
             }
             operators.push(Operator {
-                config: op.config.clone(),
+                config: &op.config,
                 meta: meta.get(op.kind.as_str()).unwrap().clone(),
             });
         }
@@ -163,7 +164,7 @@ pub struct Apply {
     pub from: usize,
 }
 #[derive(Serialize)]
-pub struct Graph {
-    pub operators: Vec<Operator>,
+pub struct Graph<'a> {
+    pub operators: Vec<Operator<'a>>,
     pub sorted_applies: Vec<Apply>,
 }

@@ -6,6 +6,6 @@ edition = "2018"
 
 [dependencies]
 tera = {git = "https://github.com/Keats/tera", rev = "3409b1a"}
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
+serde = "1.0.29"
+serde_derive = "1.0.29"
+serde_json = { version = "1.0.29", features = ["raw_value"] }

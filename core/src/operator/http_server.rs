@@ -1,11 +1,11 @@
 use super::http_api::{Method, HTTPAPI};
 use super::OperatorError;
-use async_std::sync::{Arc, Weak};
+use async_std::sync::Weak;
 use async_trait::async_trait;
 use futures::FutureExt;
 use serde::{Deserialize, Serialize};
-use sqlx::mysql::MySql;
-use tide::{Body, Request, Result as TResult};
+
+use tide::Body;
 
 pub struct HTTPServer {
     config: Config,

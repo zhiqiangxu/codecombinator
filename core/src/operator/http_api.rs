@@ -1,8 +1,8 @@
 use super::sql_runner::SqlRunner;
 use super::OperatorError;
-use async_std::sync::{Arc, Weak};
+use async_std::sync::Weak;
 use serde::{Deserialize, Serialize};
-use sqlx::mysql::MySql;
+
 use tide::{Body, Request};
 
 pub struct HTTPAPI {
@@ -42,7 +42,7 @@ impl HTTPAPI {
         &self.config
     }
 
-    pub async fn handle(&self, req: Request<()>) -> Result<Body, OperatorError> {
+    pub async fn handle(&self, _req: Request<()>) -> Result<Body, OperatorError> {
         match &self.w {
             wtype::Mysql(w) => match w.upgrade() {
                 Some(a) => {

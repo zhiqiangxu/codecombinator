@@ -1,9 +1,9 @@
 use super::sql::Sql;
 use async_std::stream::StreamExt;
-use async_std::sync::{Arc, Weak};
-use chrono;
+use async_std::sync::Weak;
+
 use serde::{Deserialize, Serialize};
-use serde_json::{value::RawValue as JsonRawValue, Value as JsonValue};
+use serde_json::Value as JsonValue;
 use sqlx::decode::Decode;
 use sqlx::mysql::{MySql, MySqlTypeInfo, MySqlValueRef};
 use sqlx::Column;
@@ -154,6 +154,7 @@ mod tests {
     use super::super::sql;
     use super::*;
     use crate::operator::Monad;
+    use async_std::sync::Arc;
 
     #[async_std::test]
     async fn execute_sql() {

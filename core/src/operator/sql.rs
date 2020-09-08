@@ -1,15 +1,10 @@
-use super::OperatorError;
-use async_std::stream::StreamExt;
-use async_std::sync::Weak;
-use async_trait::async_trait;
-use futures::TryStreamExt;
 use futures_core::stream::BoxStream;
 use serde::{Deserialize, Serialize};
 use sqlx::database::Database;
-use sqlx::mysql::{MySql, MySqlArguments, MySqlConnection, MySqlPool};
+use sqlx::mysql::{MySql, MySqlArguments, MySqlPool};
 use sqlx::pool::PoolConnection;
-use sqlx::{Execute, Executor};
-use std::io::Cursor;
+use sqlx::Executor;
+
 use std::marker::PhantomData;
 use thiserror::Error;
 
@@ -68,6 +63,7 @@ impl<DB> super::Operator for Sql<DB> {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use async_std::stream::StreamExt;
 
     #[async_std::test]
     async fn mysql() {

@@ -11,7 +11,7 @@ pub struct HTTPAPI {
 }
 
 enum wtype {
-    Mysql(Weak<SqlRunner>),
+    SqlRunner(Weak<SqlRunner>),
     None,
 }
 
@@ -44,7 +44,7 @@ impl HTTPAPI {
 
     pub async fn handle(&self, _req: Request<()>) -> Result<Body, OperatorError> {
         match &self.w {
-            wtype::Mysql(w) => match w.upgrade() {
+            wtype::SqlRunner(w) => match w.upgrade() {
                 Some(a) => {
                     let json = a.run_sql().await.unwrap();
                     return Ok(Body::from_json(&json).unwrap());
@@ -64,6 +64,6 @@ impl super::Monad<SqlRunner> for HTTPAPI {
     type Result = ();
 
     fn apply(&mut self, w: Weak<SqlRunner>) -> Self::Result {
-        self.w = wtype::Mysql(w);
+        self.w = wtype::SqlRunner(w);
     }
 }

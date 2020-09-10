@@ -87,7 +87,9 @@ impl super::Source for HTTPServer {
                 None => {}
             }
         }
-        app.listen(self.config.listen_addr).await.unwrap();
+        app.listen(self.config.listen_addr)
+            .await
+            .map_err(|e| anyhow::Error::from(e))?;
         Ok(())
     }
 }

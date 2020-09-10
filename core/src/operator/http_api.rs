@@ -1,9 +1,8 @@
 use super::sql_runner::SqlRunner;
-use super::OperatorError;
 use async_std::sync::Weak;
 use serde::{Deserialize, Serialize};
 
-use tide::{Body, Request};
+use tide::{Body, Request, Result};
 
 pub struct HTTPAPI {
     config: Config,
@@ -42,13 +41,15 @@ impl HTTPAPI {
         &self.config
     }
 
-    pub async fn handle(&self, _req: Request<()>) -> Result<Body, OperatorError> {
+    pub async fn handle(&self, _req: Request<()>) -> Result<Body> {
         match &self.w {
             WType::SqlRunner(w) => match w.upgrade() {
-                Some(a) => {
-                    let json = a.run_sql().await.unwrap();
-                    return Ok(Body::from_json(&json).unwrap());
-                }
+                Some(a) => match a.run_sql().await {
+                    Some(json) => {
+                        return Body::from_json(&json);
+                    }
+                    _ => {}
+                },
                 _ => {}
             },
             WType::None => {}

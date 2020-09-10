@@ -73,6 +73,15 @@ impl VisualGraph {
                     new_async: false,
                 },
             ),
+            (
+                "wasmtime",
+                OperatorMeta {
+                    file: "wasmtime",
+                    ty: "WasmTime",
+                    source: true,
+                    new_async: false,
+                },
+            ),
         ]
         .into_iter()
         .collect();

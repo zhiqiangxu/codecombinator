@@ -30,6 +30,14 @@
             "config": {
                 "listen_addr": "127.0.0.1:8099"
             }
+        },
+        {
+            "kind": "wasmtime",
+            "config": {
+                "wat": {
+                    "FilePath": "/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm"
+                }
+            }
         }
     ],
     "applies": {

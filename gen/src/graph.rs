@@ -74,11 +74,20 @@ impl VisualGraph {
                 },
             ),
             (
-                "wasmtime",
+                "wasm",
                 OperatorMeta {
-                    file: "wasmtime",
-                    ty: "WasmTime",
+                    file: "wasm",
+                    ty: "Wasm",
                     source: true,
+                    new_async: false,
+                },
+            ),
+            (
+                "simple_auth",
+                OperatorMeta {
+                    file: "simple_auth",
+                    ty: "SimpleAuth",
+                    source: false,
                     new_async: false,
                 },
             ),

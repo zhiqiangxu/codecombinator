@@ -26,13 +26,20 @@
             }
         },
         {
-            "kind": "http_server",
+            "kind": "http_api",
             "config": {
-                "listen_addr": "127.0.0.1:8099"
+                "uri": "/auth",
+                "method": "GET"
             }
         },
         {
-            "kind": "wasmtime",
+            "kind": "simple_auth",
+            "config": {
+                "secret": "abcd"
+            }
+        },
+        {
+            "kind": "wasm",
             "config": {
                 "wat": {
                     "FilePath": "/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm"
@@ -48,10 +55,12 @@
             1
         ],
         "3": [
-            2
+            2,
+            4
         ],
         "4": [
-            2
+            1,
+            5
         ]
     }
 }

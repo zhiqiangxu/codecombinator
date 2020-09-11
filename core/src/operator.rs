@@ -1,8 +1,9 @@
 pub mod http_api;
 pub mod http_server;
+pub mod simple_auth;
 pub mod sql;
 pub mod sql_runner;
-pub mod wasmtime;
+pub mod wasm;
 
 use async_std::sync::Weak;
 use async_trait::async_trait;

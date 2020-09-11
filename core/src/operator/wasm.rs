@@ -3,13 +3,13 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use wasmtime::{Engine, Instance, Module, Store};
 
-pub struct WasmTime {
+pub struct Wasm {
     config: Config,
 }
 
-impl WasmTime {
-    pub fn new(config: Config) -> WasmTime {
-        WasmTime { config }
+impl Wasm {
+    pub fn new(config: Config) -> Wasm {
+        Wasm { config }
     }
 }
 
@@ -25,7 +25,7 @@ pub struct Config {
 }
 
 #[async_trait]
-impl super::Source for WasmTime {
+impl super::Source for Wasm {
     async fn start(&self) -> Result<(), OperatorError> {
         let engine = Engine::default();
 
@@ -62,11 +62,11 @@ mod tests {
                
             ))"#
         .to_string();
-        let _wt = WasmTime::new(Config {
+        let _wt = Wasm::new(Config {
             wat: Wat::Content(wat_content.into_bytes().into()),
         });
 
-        let wt = WasmTime::new(Config {
+        let wt = Wasm::new(Config {
             wat: Wat::FilePath("/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm".into()),
         });
 

@@ -7,6 +7,8 @@ current operators:
 2. `sql_runner`
 3. `http_api`
 4. `http_server`
+5. `wasm`
+6. `simple_auth`
 
 Each operator has its own configurations, defined in `struct Config` in specific file under `core/src/operator`.
 

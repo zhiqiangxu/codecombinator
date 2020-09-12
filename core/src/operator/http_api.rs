@@ -1,3 +1,4 @@
+use super::saga_aggregator::SagaAggregator;
 use super::simple_auth::SimpleAuth;
 use super::sql_runner::SqlRunner;
 use async_std::sync::Weak;
@@ -18,6 +19,7 @@ enum AuthType {
 
 enum WType {
     SqlRunner(Weak<SqlRunner>),
+    SagaAggregator(Weak<SagaAggregator>),
     None,
 }
 
@@ -51,12 +53,12 @@ impl HTTPAPI {
         &self.config
     }
 
-    pub async fn handle(&self, _req: Request<()>) -> Result<Body> {
+    pub async fn handle(&self, req: Request<()>) -> Result<Body> {
         match &self.auth {
             AuthType::SimpleAuth(auth) => match auth.upgrade() {
                 Some(a) => {
                     let mut ok = false;
-                    match _req.header(AUTHKEY) {
+                    match req.header(AUTHKEY) {
                         Some(header) => {
                             if a.auth(header.get(0).unwrap().as_str()) {
                                 ok = true;
@@ -82,6 +84,12 @@ impl HTTPAPI {
                 },
                 _ => {}
             },
+            WType::SagaAggregator(w) => match w.upgrade() {
+                Some(a) => {
+                    return a.handle(req).await;
+                }
+                _ => {}
+            },
             WType::None => {}
         }
 
@@ -96,6 +104,14 @@ impl super::Monad<SqlRunner> for HTTPAPI {
 
     fn apply(&mut self, w: Weak<SqlRunner>) -> Self::Result {
         self.w = WType::SqlRunner(w);
+    }
+}
+
+impl super::Monad<SagaAggregator> for HTTPAPI {
+    type Result = ();
+
+    fn apply(&mut self, w: Weak<SagaAggregator>) -> Self::Result {
+        self.w = WType::SagaAggregator(w);
     }
 }
 

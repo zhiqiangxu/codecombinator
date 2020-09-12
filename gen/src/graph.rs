@@ -91,6 +91,15 @@ impl VisualGraph {
                     new_async: false,
                 },
             ),
+            (
+                "saga_aggregator",
+                OperatorMeta {
+                    file: "saga_aggregator",
+                    ty: "SagaAggregator",
+                    source: false,
+                    new_async: true,
+                },
+            ),
         ]
         .into_iter()
         .collect();

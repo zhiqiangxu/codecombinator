@@ -1,5 +1,6 @@
 pub mod http_api;
 pub mod http_server;
+pub mod saga_aggregator;
 pub mod simple_auth;
 pub mod sql;
 pub mod sql_runner;

@@ -1,0 +1,47 @@
+{
+    "operators": [
+        {
+            "kind": "saga_aggregator",
+            "config": {
+                "apis": [
+                    {
+                        "id": 2002,
+                        "key": "testkey1"
+                    },
+                    {
+                        "id": 2003,
+                        "key": "testkey2"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "http_api",
+            "config": {
+                "uri": "/",
+                "method": "GET"
+            }
+        },
+        {
+            "kind": "http_server",
+            "config": {
+                "listen_addr": "127.0.0.1:8088"
+            }
+        },
+        {
+            "kind": "simple_auth",
+            "config": {
+                "secret": "abcd"
+            }
+        }
+    ],
+    "applies": {
+        "1": [
+            0,
+            3
+        ],
+        "2": [
+            1
+        ]
+    }
+}

@@ -125,7 +125,7 @@ impl SagaAggregator {
 
                 let mut response =
                     surf::post(api_ext.url.replace(":apikey", api_ext.api.key.as_str()))
-                        .body_json(&req.body.to_string())
+                        .body_json(&req.body)
                         .unwrap()
                         .await
                         .unwrap();

@@ -9,6 +9,7 @@ current operators:
 4. `http_server`
 5. `wasm`
 6. `simple_auth`
+7. `saga_aggregator`
 
 Each operator has its own configurations, defined in `struct Config` in specific file under `core/src/operator`.
 

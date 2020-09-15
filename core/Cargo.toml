@@ -17,6 +17,7 @@ thiserror = {git="https://github.com/dtolnay/thiserror", rev = "04b91d7"}
 futures-core = { version = "0.3.5", default-features = false }
 anyhow = {version = "^1.0.19"} # follow wasmtime
 wasmtime = "0.18.0"
+wasmtime-wasi = "0.18.0"
 waitgroup = "0.1.1"
 # hyper = { version = "0.13.2", features = ["tcp"] }
 surf = "1.0.3"

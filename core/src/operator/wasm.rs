@@ -1,7 +1,8 @@
 use super::OperatorError;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use wasmtime::{Engine, Instance, Module, Store};
+use wasmtime::{Engine, Extern, Instance, Linker, Module, Store};
+use wasmtime_wasi::{Wasi, WasiCtx};
 
 pub struct Wasm {
     config: Config,
@@ -22,6 +23,8 @@ pub enum Wat {
 #[derive(Deserialize, Serialize)]
 pub struct Config {
     pub wat: Wat,
+    #[serde(default)]
+    pub wsgi: bool,
 }
 
 #[async_trait]
@@ -36,15 +39,28 @@ impl super::Source for Wasm {
             Wat::Content(content) => Module::new(&engine, content),
         }?;
 
-        let instance = Instance::new(&store, &module, &[])?;
+        let f = if self.config.wsgi {
+            let mut linker = Linker::new(&store);
+            let wasi = Wasi::new(&store, WasiCtx::new(std::env::args()).unwrap());
+            wasi.add_to_linker(&mut linker)?;
+            linker.module("", &module)?;
+            let ex = linker.get_one_by_name("", "invoke")?;
+            match ex {
+                Extern::Func(f) => f,
+                _ => panic!("invalid extern type"),
+            }
+        } else {
+            let instance = Instance::new(&store, &module, &[])?;
+            let main = instance
+                .get_func("invoke")
+                .expect("`invoke` was not an exported function");
+            main
+        };
 
-        let main = instance
-            .get_func("invoke")
-            .expect("`invoke` was not an exported function");
+        f.call(&[]).unwrap();
+        // let main = f.get0::<()>()?;
 
-        let main = main.get0::<()>()?;
-
-        main().unwrap();
+        // main().unwrap();
 
         Ok(())
     }
@@ -64,16 +80,19 @@ mod tests {
         .to_string();
         let _wt = Wasm::new(Config {
             wat: Wat::Content(wat_content.into_bytes().into()),
+            wsgi: false,
         });
 
         let wt = Wasm::new(Config {
-            wat: Wat::FilePath("/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm".into()),
+            wat: Wat::FilePath("/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-wasi/debug/hi.wasi.wasm".into()),
+            wsgi: true,
         });
 
         wt.start().await.unwrap();
 
         println!("{}",serde_json::to_string(&Config {
-            wat: Wat::FilePath("/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm".into()),
+            wat: Wat::FilePath("/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-wasi/debug/hi.wasi.wasm".into()),
+            wsgi: true,
         }).unwrap());
     }
 }

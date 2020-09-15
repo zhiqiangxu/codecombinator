@@ -42,8 +42,9 @@
             "kind": "wasm",
             "config": {
                 "wat": {
-                    "FilePath": "/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-unknown-unknown/release/hi.wasm"
-                }
+                    "FilePath": "/Users/xuzhiqiang/Desktop/workspace/opensource/rust_exp/hi/target/wasm32-wasi/debug/hi.wasi.wasm"
+                },
+                "wsgi": true
             }
         }
     ],

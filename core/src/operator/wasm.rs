@@ -54,22 +54,9 @@ impl super::Source for Wasm {
                 _ => panic!("invalid extern type"),
             }
         } else {
-            let mut funcs = vec![];
-            let imports: Vec<_> = module.imports().collect();
-            for import in imports {
-                match import.module().to_string().as_str() {
-                    "env" => match import.name().to_string().as_str() {
-                        "add" => {
-                            funcs.push(Func::wrap(&store, runtime::add).into());
-                        }
-                        f => panic!(println!("invalid import func: {}", f)),
-                    },
-                    m => panic!(println!("invalid import module: {}", m)),
-                }
-                println!("{:?}", import.module());
-                println!("{:?}", import.name());
-            }
-            let instance = Instance::new(&store, &module, funcs.as_slice())?;
+            let mut linker = Linker::new(&store);
+            linker.func("env", "add", runtime::add).unwrap();
+            let instance = linker.instantiate(&module).unwrap();
             let main = instance
                 .get_func("invoke")
                 .expect("`invoke` was not an exported function");
